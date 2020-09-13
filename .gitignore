@@ -1,0 +1,14 @@
+# IntelliJ
+.idea
+
+# gradle
+*/build
+.gradle
+gradlew
+gradlew.bat
+
+# other
+run
+
+# Project exclude paths
+/build/

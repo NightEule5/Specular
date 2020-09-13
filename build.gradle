@@ -1,0 +1,73 @@
+plugins {
+	id "org.jetbrains.kotlin.jvm" version "1.4.10"
+	id "org.jetbrains.dokka"      version "1.4.0-rc"
+	id "maven-publish"
+}
+
+group = "strixpyrr.specular"
+archivesBaseName = "Specular"
+version = "0.5"
+
+repositories {
+	mavenCentral()
+	jcenter()
+	mavenLocal()
+}
+
+dependencies {
+	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+	implementation "org.jetbrains.kotlin:kotlin-reflect"
+	// implementation "com.google.guava:guava:21.+"
+	implementation "org.apache.commons:commons-collections4:4.4"
+	implementation "uy.kohesive.klutter:klutter-core:3.0.+"
+
+	// For static object model generation, which is an optional feature.
+	// compileOnly "com.squareup:kotlinpoet:1.6.0"
+}
+
+dokkaHtml {
+	dokkaSourceSets {
+		configureEach {
+			includes = ["src/main/kotlin/Packages.md"]
+
+			perPackageOption {
+				prefix = "strixpyrr.specular.models.internal"
+				suppress = true
+			}
+
+			perPackageOption {
+				prefix = "strixpyrr.specular.models.factory.internal"
+				suppress = true
+			}
+		}
+	}
+}
+
+task dokkaJar(type: Jar) {
+	from dokkaHtml
+	archiveClassifier.set("docs")
+}
+
+compileKotlin {
+	kotlinOptions {
+		jvmTarget = "1.8"
+		languageVersion = "1.4"
+		freeCompilerArgs +=
+		[
+			"-Xinline-classes",
+			"-Xopt-in=kotlin.contracts.ExperimentalContracts",
+			"-Xopt-in=kotlin.ExperimentalStdlibApi"
+		]
+	}
+}
+
+publishing {
+	publications {
+		specular(MavenPublication) {
+			from components.kotlin
+
+			artifact kotlinSourcesJar
+			artifact dokkaJar
+		}
+	}
+}
