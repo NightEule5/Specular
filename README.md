@@ -2,7 +2,7 @@
 
 Specular is a Kotlin library that abstracts various tasks involving reflection. Currently this only includes object models, but it may be expanded to other areas in the future.
 
-This project started as part of a Minecraft mod I'm working on. I wanted a way to serialize and deserialize NBT to classes automatically, and found [AutoSave](https://github.com/SleepyTrousers/AutoSave), and existing project for that purpose, to be unsuitable. So, as a foundation, I built Specular (at first it was called "Mirror").
+This project started as part of a Minecraft mod I'm working on. I wanted a way to serialize and deserialize NBT to classes automatically, and found [AutoSave](https://github.com/SleepyTrousers/AutoSave), an existing project for that purpose, to be unsuitable. So, as a foundation, I built Specular (at first it was called "Mirror").
 
 ## Using it
 
