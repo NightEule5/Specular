@@ -24,15 +24,19 @@ import strixpyrr.specular.models.internal.sortDescendingByValue
  */
 open class UsageAwareModelCache<K : Any> protected constructor(
 	override val storage: MutableMap<K, IUsageAwareNode>,
-	protected val removalThreshold: Int = -1
+	protected val removalThreshold: Int = -1,
+	
 ) : ModelCache<K, UsageAwareModelCache.IUsageAwareNode>()
 {
-	constructor(capacity: Int = 8, threshold: Int = -1) :
+	constructor(capacity: Int = 8, threshold: Int = -1, optimizationHitThreshold: Int = -1) :
 		this(LinkedHashMap<K, IUsageAwareNode>(capacity), threshold)
+	{
+		hitThreshold = optimizationHitThreshold;
+	}
 	
-	override fun create(factory: () -> IModel<*, *, *, *>) = UsageAwareNode(factory);
+	override fun create(factory: () -> IModel<*, *, *, *>) = UsageAwareNode(this, factory);
 	
-	override fun create(model: IModel<*, *, *, *>) = UsageAwareValueNode(model);
+	override fun create(model: IModel<*, *, *, *>) = UsageAwareValueNode(this, model);
 	
 	override fun isNode(node: INode) = node is IUsageAwareNode;
 	
@@ -97,8 +101,9 @@ open class UsageAwareModelCache<K : Any> protected constructor(
 	}
 	
 	protected open class UsageAwareNode(
+		parent: UsageAwareModelCache<*>,
 		factory: () -> IModel<*, *, *, *>
-	) : IUsageAwareNode, Node(factory)
+	) : IUsageAwareNode, Node(parent, factory)
 	{
 		final override var usageCount: Int = 0; private set;
 		
@@ -114,8 +119,9 @@ open class UsageAwareModelCache<K : Any> protected constructor(
 	}
 	
 	protected open class UsageAwareValueNode(
+		parent: UsageAwareModelCache<*>,
 		model: IModel<*, *, *, *>
-	) : IUsageAwareNode, ValueNode(model)
+	) : IUsageAwareNode, ValueNode(parent, model)
 	{
 		final override var usageCount: Int = 0; private set;
 		

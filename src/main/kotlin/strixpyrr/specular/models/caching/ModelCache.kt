@@ -17,6 +17,8 @@ import strixpyrr.specular.models.IModel
 import strixpyrr.specular.models.caching.IModelCache.INode
 import uy.klutter.core.collections.asReadOnly
 
+// Todo: Unify the two node types, and clean up cache hitting.
+
 /**
  * @since 0.5
  */
@@ -24,6 +26,14 @@ abstract class ModelCache<K : Any, N : INode> : IModelCache<K>
 {
 	@Suppress("LeakingThis")
 	override val map = storage.asReadOnly();
+	
+	/**
+	 * A count that increments on every successful [get] operation, and resets to
+	 * `0` when it becomes greater than [hitThreshold]. When the latter happens,
+	 * [optimize] will be called.
+	 */
+	protected var cacheHitCount = 0;
+	protected var hitThreshold = -1;
 	
 	protected abstract val storage: MutableMap<K, N>;
 	
@@ -38,13 +48,21 @@ abstract class ModelCache<K : Any, N : INode> : IModelCache<K>
 		)
 	}
 	
-	@Suppress("UNCHECKED_CAST")
 	override fun <M : IModel<*, *, *, *>> get(key: K, factory: () -> M)
-		= storage.getOrPut(key) { create(factory) } as M;
+		= getOrPut(key, factory()) { create(factory) };
+	
+	override fun <M : IModel<*, *, *, *>> get(key: K, default: M)
+		= getOrPut(key, default) { create(default) };
 	
 	@Suppress("UNCHECKED_CAST")
-	override fun <M : IModel<*, *, *, *>> get(key: K, default: M)
-		= storage.getOrPut(key) { create(default) } as M;
+	private inline fun <M> getOrPut(key: K, model: M, create: () -> N): M
+	{
+		val node = storage[key];
+		
+		return if (node == null)
+			model.also { storage[key] = create() };
+		else (node.model as M).also { hit() };
+	}
 	
 	override fun cache(key: K, factory: () -> IModel<*, *, *, *>): Boolean
 	{
@@ -81,17 +99,35 @@ abstract class ModelCache<K : Any, N : INode> : IModelCache<K>
 	protected abstract fun create(model: IModel<*, *, *, *>): N;
 	protected abstract fun isNode(node: INode): Boolean;
 	
+	protected open fun hit()
+	{
+		// Prevent the hit count from incrementing with no reset if hitting is not
+		// enabled.
+		if (hitThreshold < 1) return;
+		
+		if (cacheHitCount == hitThreshold)
+		{
+			cacheHitCount = 0;
+			
+			optimize();
+		}
+		else cacheHitCount++;
+	}
+	
 	protected open class Node(
+		parent: ModelCache<*, *>,
 		val factory: () -> IModel<*, *, *, *>
 	): INode
 	{
 		protected var value: IModel<*, *, *, *>? = null;
 		
+		protected val hit = parent::hit;
+		
 		// This is annoying. In C# I could've done "value ??= factory()".
 		// I did some reading, and apparently this case was one reason "also" was
 		// added: https://discuss.kotlinlang.org/t/nullable-assigner/3931/6.
 		// I just happened to write their example before reading that... weird.
-		override val model get() = value ?: factory().also { value = it };
+		override val model get() = value ?: factory().also { value = it; hit() };
 		
 		override fun equals(other: Any?): Boolean
 		{
@@ -113,9 +149,13 @@ abstract class ModelCache<K : Any, N : INode> : IModelCache<K>
 	}
 	
 	protected open class ValueNode(
-		override val model: IModel<*, *, *, *>
+		parent: ModelCache<*, *>,
+		model: IModel<*, *, *, *>
 	): INode
 	{
+		override val model = model; get() = field.also { hit() }
+		protected val hit = parent::hit;
+		
 		override fun equals(other: Any?): Boolean
 		{
 			if (this === other) return true
