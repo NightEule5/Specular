@@ -28,7 +28,7 @@ interface IModelCache<K>
 	
 	operator fun <T, Km, L, Lp> get(key: K): IModel<T, Km, L, Lp>;
 	fun <T, Km, L, Lp> get(key: K, provider: IModelProvider<T, Km, L, Lp>) = get(key, provider::model);
-	fun <M : IModel<*, *, *, *>> get(key: K, default: M) = get<M>(key) { default };
+	fun <M : IModel<*, *, *, *>> get(key: K, default: M): M;
 	fun <M : IModel<*, *, *, *>> get(key: K, factory: () -> M): M;
 	
 	fun cache(key: K, provider: IModelProvider<*, *, *, *>) = cache(key, provider::model);
