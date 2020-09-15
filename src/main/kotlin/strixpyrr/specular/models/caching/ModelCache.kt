@@ -42,6 +42,10 @@ abstract class ModelCache<K : Any, N : INode> : IModelCache<K>
 	override fun <M : IModel<*, *, *, *>> get(key: K, factory: () -> M)
 		= storage.getOrPut(key) { create(factory) } as M;
 	
+	@Suppress("UNCHECKED_CAST")
+	override fun <M : IModel<*, *, *, *>> get(key: K, default: M)
+		= storage.getOrPut(key) { create(default) } as M;
+	
 	override fun cache(key: K, factory: () -> IModel<*, *, *, *>): Boolean
 	{
 		if (key in storage) return true;
