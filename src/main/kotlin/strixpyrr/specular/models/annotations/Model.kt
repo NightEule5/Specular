@@ -15,20 +15,14 @@ package strixpyrr.specular.models.annotations
 
 import kotlin.annotation.AnnotationTarget.CLASS
 import kotlin.annotation.AnnotationTarget.TYPE
-import kotlin.reflect.KClass
 
 /**
  * Marks a class as a Model. This is optional.
- * @param labelType The model level attribute label type. Usually this will be an
- * [Enum] type.
- * @param propertyLabelType The property level attribute label type.
  * @since 0.5
  */
 @Target(CLASS, TYPE)
 annotation class Model(
-	val memberInclusion: MemberInclusion = MemberInclusion.OptOut,
-	val labelType: KClass<*> = String::class,
-	val propertyLabelType: KClass<*> = String::class
+	val memberInclusion: MemberInclusion = MemberInclusion.OptOut
 )
 {
 	enum class MemberInclusion { OptIn, OptOut }
