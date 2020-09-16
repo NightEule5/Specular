@@ -24,8 +24,8 @@ interface IProperty<T, V, L> : IAttributeProvider<L>
 	override val attributeContainer get() = getEmptyAttributeContainer<L>();
 	
 	val type: KType;
-	val T.hasValue: Boolean;
 	
+	fun hasValue(target: T): Boolean;
 	fun getValue(target: T): V;
 	fun setValue(target: T, value: V);
 	

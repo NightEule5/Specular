@@ -27,5 +27,6 @@ open class DelegatedProperty<T, V, L>(
 ) : IDelegatedProperty<T, V, L>
 {
 	override val attributeContainer = attributes;
-	override val T.hasValue get() = isInitialized();
+	
+	override fun hasValue(target: T) = target.isInitialized();
 }

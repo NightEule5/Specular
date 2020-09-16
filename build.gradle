@@ -6,7 +6,7 @@ plugins {
 
 group = "strixpyrr.specular"
 archivesBaseName = "Specular"
-version = "0.5.2"
+version = "0.5.2.1"
 
 repositories {
 	mavenCentral()
