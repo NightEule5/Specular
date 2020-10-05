@@ -22,6 +22,7 @@ import strixpyrr.specular.models.factory.internal.isEnum
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty1
+import kotlin.reflect.KVisibility
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.memberProperties
@@ -57,6 +58,7 @@ open class DecoratedClassModelFactory : IClassModelFactory
 		val properties = target.memberProperties;
 		val mutable = properties
 							.asSequence()
+							.filter { it.visibility == KVisibility.PUBLIC }
 							.filter { it is KMutableProperty1 };
 		
 		for (property in mutable)
