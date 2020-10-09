@@ -22,6 +22,7 @@ class SimplePropertyBuilder<T, V> : DelegatedPropertyBuilder<T, V, String>()
 {
 	override fun build()
 		= SimpleProperty(
+			name,
 			getter,
 			setter,
 			isInitialized,
