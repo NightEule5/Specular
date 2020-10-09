@@ -13,16 +13,17 @@
 // limitations under the License.
 package strixpyrr.specular.models
 
-import kotlin.reflect.KType
+import kotlin.reflect.KParameter
 
-/**
- * @since 0.5
- */
-class SimpleProperty<T, V>(
+open class PropertyLinkedFactoryParameter(
 	name: String,
-	get: T.() -> V,
-	set: T.(V) -> Unit,
-	isInitialized: T.() -> Boolean,
-	type: KType,
-	attributes: IAttributeContainer<String> = getEmptyAttributeContainer()
-) : DelegatedProperty<T, V, String>(name, get, set, isInitialized, type, attributes)
+	parameter: KParameter,
+	val property: IProperty<*, *, *>
+) : FactoryParameter(name, parameter)
+{
+	constructor(parameter: KParameter, property: IProperty<*, *, *>) : this(
+		parameter.name ?: throw IllegalArgumentException("The parameter must have a name."),
+		parameter,
+		property
+	)
+}

@@ -19,6 +19,7 @@ import kotlin.reflect.KType
  * @since 0.5
  */
 open class DelegatedProperty<T, V, L>(
+	override val name: String,
 	override val get: T.() -> V,
 	override val set: T.(V) -> Unit,
 	val isInitialized: T.() -> Boolean,

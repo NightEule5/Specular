@@ -22,7 +22,7 @@ import kotlin.contracts.contract
 /**
  * @since 0.5
  */
-class SimpleModelBuilder<T> : NamedDelegatedModelBuilder<T, String, String>()
+class SimpleModelBuilder<T : Any> : NamedDelegatedModelBuilder<T, String, String>()
 {
 	inline fun <V> addProperty(
 		key: String,

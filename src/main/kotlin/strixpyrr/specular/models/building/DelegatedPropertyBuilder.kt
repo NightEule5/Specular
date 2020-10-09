@@ -26,6 +26,7 @@ import kotlin.reflect.typeOf
  */
 open class DelegatedPropertyBuilder<T, V, L> : IPropertyBuilder<T, V, L>, AttributeProviderBuilder<L>()
 {
+	lateinit var name: String;
 	lateinit var getter: T.() -> V;
 	lateinit var setter: T.(V) -> Unit;
 	lateinit var isInitialized: T.() -> Boolean;
@@ -34,11 +35,15 @@ open class DelegatedPropertyBuilder<T, V, L> : IPropertyBuilder<T, V, L>, Attrib
 	@PublishedApi
 	internal val hasType by ::valueType::isInitialized;
 	
-	open fun setFromProperty(property: KMutableProperty1<T, V>)
-		= setAccessors(property::get, property::set).apply {
+	open fun setFromProperty(property: KMutableProperty1<T, V>): DelegatedPropertyBuilder<T, V, L>
+	{
+		name = property.name
+		
+		return setAccessors(property::get, property::set).apply {
 			if (!property.isLateinit && !::isInitialized.isInitialized)
 				setAsAlwaysInitialized()
 		}
+	}
 	
 	open fun setAccessors(get: T.() -> V, set: T.(V) -> Unit)
 		= with {
@@ -65,6 +70,7 @@ open class DelegatedPropertyBuilder<T, V, L> : IPropertyBuilder<T, V, L>, Attrib
 	
 	override fun build(): IDelegatedProperty<T, V, L>
 		= DelegatedProperty(
+			name,
 			getter,
 			setter,
 			isInitialized,

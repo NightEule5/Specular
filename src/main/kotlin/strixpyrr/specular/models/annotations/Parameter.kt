@@ -11,18 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package strixpyrr.specular.models
+package strixpyrr.specular.models.annotations
 
-import kotlin.reflect.KType
+import kotlin.annotation.AnnotationTarget.VALUE_PARAMETER
 
 /**
- * @since 0.5
+ * Links a constructor parameter to a property by name. This can be omitted if the
+ * parameter shares a name with its property, like in primary constructors.
+ * @since 0.6
  */
-class SimpleProperty<T, V>(
-	name: String,
-	get: T.() -> V,
-	set: T.(V) -> Unit,
-	isInitialized: T.() -> Boolean,
-	type: KType,
-	attributes: IAttributeContainer<String> = getEmptyAttributeContainer()
-) : DelegatedProperty<T, V, String>(name, get, set, isInitialized, type, attributes)
+@MustBeDocumented
+@Target(VALUE_PARAMETER)
+annotation class Parameter(val propertyName: String)

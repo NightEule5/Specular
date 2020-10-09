@@ -33,6 +33,7 @@ import kotlin.reflect.full.memberProperties
 open class DecoratedClassModelFactory : IClassModelFactory
 {
 	var transformer = AnnotationTransformer();
+	var factoryResolver = FactoryResolver();
 	
 	inline fun <reified T : Any, reified K : Any, reified L : Any, reified Lp : Any> create()
 		= create(T::class, K::class, L::class, Lp::class);
@@ -42,7 +43,7 @@ open class DecoratedClassModelFactory : IClassModelFactory
 		keyClass: KClass<K>,
 		labelClass: KClass<L>,
 		propertyLabelClass: KClass<Lp>
-	) = Context<T, K, L, Lp>(
+	) = Context(
 		targetClass,
 		keyClass,
 		labelClass,
@@ -55,11 +56,14 @@ open class DecoratedClassModelFactory : IClassModelFactory
 			transformer.transform(target, labelType, this)
 		}
 		
+		// Properties
+		
 		val properties = target.memberProperties;
-		val mutable = properties
-							.asSequence()
-							.filter { it.visibility == KVisibility.PUBLIC }
-							.filter { it is KMutableProperty1 };
+		val mutable = properties.filterTo(ArrayList(properties.size))
+		{
+			it.visibility == KVisibility.PUBLIC &&
+			it is KMutableProperty1
+		}
 		
 		for (property in mutable)
 		{
@@ -103,6 +107,23 @@ open class DecoratedClassModelFactory : IClassModelFactory
 					else if (property.isLateinit && valueType.isMarkedNullable)
 						setInitialization { property.get(this) != null };
 				}
+			}
+		}
+		
+		// Constructors and Factory Functions
+		
+		val builtProperties = builder.properties.values
+		
+		builder.addFactoryOverloads(target, factoryResolver::isIncluded)
+		{
+			factoryResolver.createParameter(it, builtProperties)
+		}
+		
+		for (factory in factoryResolver.findFunctions(target))
+		{
+			builder.addFactoryOverload(factory, isPrimary = false)
+			{
+				factoryResolver.createParameter(it, builtProperties)
 			}
 		}
 	}

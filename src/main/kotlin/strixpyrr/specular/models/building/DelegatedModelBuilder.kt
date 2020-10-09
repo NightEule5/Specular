@@ -13,21 +13,32 @@
 // limitations under the License.
 package strixpyrr.specular.models.building
 
-import strixpyrr.specular.models.DelegatedModel
-import strixpyrr.specular.models.IDelegatedModel
-import strixpyrr.specular.models.IDelegatedProperty
+import strixpyrr.abstrakt.collections.addFirst
+import strixpyrr.specular.models.*
 import strixpyrr.specular.models.internal.fix
+import uy.klutter.core.collections.asReadOnly
+import uy.klutter.core.common.verifiedWith
 import uy.klutter.core.common.with
+import uy.klutter.core.common.withNotNull
+import java.util.LinkedList
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
+import kotlin.reflect.KParameter
+import kotlin.reflect.KVisibility
+import kotlin.reflect.full.primaryConstructor
 
 /**
  * @since 0.5
  */
-open class DelegatedModelBuilder<T, K, L, Lp> protected constructor(
-	protected val storage: MutableMap<K, IDelegatedProperty<T, *, Lp>>
+open class DelegatedModelBuilder<T : Any, K : Any, L, Lp> protected constructor(
+	protected val storage: MutableMap<K, IDelegatedProperty<T, *, Lp>>,
+	protected val factories: MutableList<IFactoryVariant<T>> = LinkedList()
 ) : IModelBuilder<T, K, L, Lp>, AttributeProviderBuilder<L>()
 {
+	val properties get() = storage.asReadOnly()
+	
 	/**
 	 * @param keepInsertionOrder Whether the storage map should preserve insertion
 	 * order. If left `true`, the storage map will be a [LinkedHashMap] instead of
@@ -56,9 +67,83 @@ open class DelegatedModelBuilder<T, K, L, Lp> protected constructor(
 	open fun <V> addProperty(key: K, property: IDelegatedProperty<T, V, Lp>)
 		= with { storage[key] = property };
 	
-	override fun build(): IDelegatedModel<T, K, L, Lp> = DelegatedModel(finalizeStorage(), attributeContainer);
+	open fun addFactoryOverloads(type: KClass<T>) = addFactoryOverloads(type) { true }
+	
+	inline fun addFactoryOverloads(
+		type: KClass<T>,
+		inclusion: (KFunction<T>) -> Boolean
+	) = addFactoryOverloads(type, inclusion, KParameter::toFactoryParameter)
+	
+	inline fun addFactoryOverloads(
+		type: KClass<T>,
+		inclusion: (KFunction<T>) -> Boolean,
+		parameterMap: (KParameter) -> IFactoryParameter
+	)
+	{
+		type.primaryConstructor withNotNull
+		{
+			if (inclusion(this))
+				addFactoryOverload(this, isPrimary = true, parameterMap)
+		}
+		
+		for (constructor in type.constructors)
+		{
+			if (constructor.visibility == KVisibility.PUBLIC && inclusion(constructor))
+				addFactoryOverload(constructor, isPrimary = false, parameterMap)
+		}
+	}
+	
+	open fun addFactoryOverload(factory: KFunction<T>, isPrimary: Boolean = false) =
+		addFactoryOverload(factory, isPrimary, KParameter::toFactoryParameter)
+	
+	inline fun addFactoryOverload(factory: KFunction<T>, isPrimary: Boolean, parameterMap: (KParameter) -> IFactoryParameter) =
+		addFactoryOverload(DelegatedFactoryOverload(isPrimary, factory, factory.mapParameters(parameterMap)))
+	
+	open fun addFactoryOverload(overload: DelegatedFactoryOverload<T>)
+	{
+		if (overload !in factories)
+			if (overload.isPrimary)
+				factories.addFirst(overload)
+			else factories += overload
+	}
+	
+	@PublishedApi
+	internal inline fun KFunction<T>.mapParameters(map: (KParameter) -> IFactoryParameter) =
+		parameters.map(map).asReadOnly()
+	
+	override fun build(): IDelegatedModel<T, K, L, Lp> =
+		DelegatedModel(
+			finalizeStorage(),
+			attributeContainer,
+			if (factories.isEmpty())
+				emptyList()
+			else
+				ArrayList(
+					factories verifiedWith ::verifyFactoryOverloads
+				).asReadOnly()
+		);
 	
 	protected open fun finalizeStorage() = storage.fix();
+	
+	protected fun verifyFactoryOverloads(overloads: MutableList<IFactoryVariant<T>>)
+	{
+		var hasPrimary = false
+		
+		overloads.forEachIndexed()
+		{ i, factory ->
+			if (factory.isPrimary)
+			{
+				if (hasPrimary)
+					// Todo: Replace this with a more informative Exception.
+					throw Exception(
+						"Only one factory overload may be primary, but a second" +
+						" was found at index $i."
+					)
+				
+				hasPrimary = true
+			}
+		}
+	}
 	
 	companion object
 	{

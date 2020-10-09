@@ -16,7 +16,7 @@ package strixpyrr.specular.models
 /**
  * @since 0.5
  */
-interface IModel<T, K, L, Lp> : IAttributeProvider<L>
+interface IModel<T, K, L, Lp> : IAttributeProvider<L>, ITargetFactory<T>
 {
 	val keys: Collection<K>;
 	val properties: Collection<IProperty<T, *, Lp>>;

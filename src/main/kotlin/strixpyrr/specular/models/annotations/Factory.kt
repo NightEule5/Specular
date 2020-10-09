@@ -11,18 +11,18 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package strixpyrr.specular.models
+package strixpyrr.specular.models.annotations
 
-import kotlin.reflect.KType
+import kotlin.annotation.AnnotationTarget.CONSTRUCTOR
+import kotlin.annotation.AnnotationTarget.FUNCTION
 
 /**
- * @since 0.5
+ * Marks a constructor or static function as a factory. Along with [Parameter],
+ * this directs how models will create instances of the target. This currently has
+ * no effect on constructors, as they're included by default. Constructors can be
+ * opted out by [ExcludedFactory].
+ * @since 0.6
  */
-class SimpleProperty<T, V>(
-	name: String,
-	get: T.() -> V,
-	set: T.(V) -> Unit,
-	isInitialized: T.() -> Boolean,
-	type: KType,
-	attributes: IAttributeContainer<String> = getEmptyAttributeContainer()
-) : DelegatedProperty<T, V, String>(name, get, set, isInitialized, type, attributes)
+@MustBeDocumented
+@Target(CONSTRUCTOR, FUNCTION)
+annotation class Factory

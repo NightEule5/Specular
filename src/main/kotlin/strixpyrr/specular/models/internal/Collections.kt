@@ -60,6 +60,7 @@ internal fun <K, V : Comparable<V>> Map<K, V>.toDescendingSortedListByValue(): M
 
 // Contextual "All"
 
+@JvmName("allWithContext")
 internal inline fun <T> Iterable<T>.all(block: (prev: T, curr: T) -> Boolean): Boolean
 {
 	if (count() < 2) return true;
@@ -74,4 +75,14 @@ internal inline fun <T> Iterable<T>.all(block: (prev: T, curr: T) -> Boolean): B
 		else previous = value;
 	
 	return true;
+}
+
+// Indexed "All"
+
+@JvmName("allIndexed")
+internal inline fun <T> Iterable<T>.all(block: (Int, T) -> Boolean): Boolean
+{
+	var i = 0
+	
+	return all { v -> block(i++, v) }
 }

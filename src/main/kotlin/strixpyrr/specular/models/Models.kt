@@ -17,6 +17,8 @@ package strixpyrr.specular.models
 import strixpyrr.specular.models.factory.DecoratedClassModelFactory
 import java.util.LinkedHashMap
 import java.util.TreeMap
+import kotlin.reflect.KFunction
+import kotlin.reflect.KParameter
 
 // Todo: The named attribute containers rely on TreeMaps for case insensitivity. I
 //  would rather not use those, but re-implementing LinkedHashMap to make its hash
@@ -25,6 +27,9 @@ import java.util.TreeMap
 //  I want to preserve case and retain some semblance of speed.
 
 // Models //
+
+@PublishedApi
+internal val globalModelFactory by lazy(::DecoratedClassModelFactory)
 
 /**
  * Creates a model. This is just syntactic sugar for [DecoratedClassModelFactory].
@@ -40,7 +45,7 @@ inline fun <reified T  : Any,
 			reified K  : Any,
 			reified L  : Any,
 			reified Lp : Any> create()
-	= DecoratedClassModelFactory().create<T, K, L, Lp>();
+	= globalModelFactory.create<T, K, L, Lp>();
 
 // Attribute Containers //
 
@@ -94,3 +99,18 @@ private object EmptyAttributeContainer : IAttributeContainer<Any?>
 	override fun <A> getAttribute(label: Any?)
 		= throw NoSuchElementException("This container is empty.");
 }
+
+// Factory Variants
+
+fun <T> createFactoryVariant(
+	isPrimary: Boolean,
+	factory: KFunction<T>
+) = DelegatedFactoryOverload(isPrimary, factory)
+
+// Factory Parameters
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun KParameter.toFactoryParameter() = FactoryParameter(this);
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun KParameter.toFactoryParameter(property: IProperty<*, *, *>) = PropertyLinkedFactoryParameter(this, property);

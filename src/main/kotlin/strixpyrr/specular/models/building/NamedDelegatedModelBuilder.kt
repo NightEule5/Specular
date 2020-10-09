@@ -19,7 +19,7 @@ import strixpyrr.specular.models.internal.fixAsCaseInsensitive
 /**
  * @since 0.5
  */
-open class NamedDelegatedModelBuilder<T, L, Lp> protected constructor(
+open class NamedDelegatedModelBuilder<T : Any, L, Lp> protected constructor(
 	storage: MutableMap<String, IDelegatedProperty<T, *, Lp>>
 ) : DelegatedModelBuilder<T, String, L, Lp>(storage)
 {

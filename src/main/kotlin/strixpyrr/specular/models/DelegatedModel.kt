@@ -18,11 +18,15 @@ package strixpyrr.specular.models
  */
 open class DelegatedModel<T, K, L, Lp>(
 	protected val propertyMap: Map<K, IDelegatedProperty<T, *, Lp>>,
-	override val attributeContainer: IAttributeContainer<L>
+	override val attributeContainer: IAttributeContainer<L>,
+	override val factoryVariants: Collection<IFactoryVariant<T>> = emptyList()
 ) : IDelegatedModel<T, K, L, Lp>
 {
 	override val keys       by propertyMap::keys;
 	override val properties by propertyMap::values;
+	
+	@Suppress("LeakingThis")
+	override val canCreate = factoryVariants.isEmpty();
 	
 	override fun hasProperty(key: K) = propertyMap.containsKey(key);
 	

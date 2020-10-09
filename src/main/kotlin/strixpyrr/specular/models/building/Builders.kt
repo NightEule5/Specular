@@ -21,6 +21,9 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.reflect.KAnnotatedElement
 
+inline fun <reified T : Any> DelegatedModelBuilder<T, *, *, *>.addFactoryOverloads() =
+	addFactoryOverloads(T::class)
+
 // "Pure" builder manipulation
 
 /**

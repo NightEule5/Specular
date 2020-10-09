@@ -6,7 +6,7 @@ plugins {
 
 group = "strixpyrr.specular"
 archivesBaseName = "Specular"
-version = "0.5.2.1"
+version = "0.6"
 
 repositories {
 	mavenCentral()
@@ -20,6 +20,8 @@ dependencies {
 	// implementation "com.google.guava:guava:21.+"
 	implementation "org.apache.commons:commons-collections4:4.4"
 	implementation "uy.kohesive.klutter:klutter-core:3.0.+"
+
+	implementation "strixpyrr.abstrakt:Abstrakt.Collections:0.0.2"
 
 	// For static object model generation, which is an optional feature.
 	// compileOnly "com.squareup:kotlinpoet:1.6.0"
