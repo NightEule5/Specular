@@ -111,8 +111,11 @@ open class DelegatedModelBuilder<T : Any, K : Any, L, Lp> protected constructor(
 	internal inline fun KFunction<T>.mapParameters(map: (KParameter) -> IFactoryParameter) =
 		parameters.map(map).asReadOnly()
 	
-	override fun build(): IDelegatedModel<T, K, L, Lp> =
-		DelegatedModel(
+	override fun build(): IDelegatedModel<T, K, L, Lp>
+	{
+		verifyImmutableProperties()
+		
+		return DelegatedModel(
 			finalizeStorage(),
 			attributeContainer,
 			if (factories.isEmpty())
@@ -121,7 +124,8 @@ open class DelegatedModelBuilder<T : Any, K : Any, L, Lp> protected constructor(
 				ArrayList(
 					factories verifiedWith ::verifyFactoryOverloads
 				).asReadOnly()
-		);
+		)
+	};
 	
 	protected open fun finalizeStorage() = storage.fix();
 	
@@ -141,6 +145,31 @@ open class DelegatedModelBuilder<T : Any, K : Any, L, Lp> protected constructor(
 					)
 				
 				hasPrimary = true
+			}
+		}
+	}
+	
+	protected fun verifyImmutableProperties()
+	{
+		storage.values.forEach()
+		{
+			if (it.immutable)
+			{
+				val isValid = factories.any()
+				{ f ->
+					f.parameters.any()
+					{ p ->
+						if (p is PropertyLinkedFactoryParameter)
+							p.property == it
+						else p.name == it.name
+					}
+				}
+				
+				if (!isValid)
+					throw Exception(
+						"The immutable property ${it.name} is invalid: it is not" +
+						" set in any factories."
+					)
 			}
 		}
 	}

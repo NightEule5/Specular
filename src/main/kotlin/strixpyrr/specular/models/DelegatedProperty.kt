@@ -24,7 +24,8 @@ open class DelegatedProperty<T, V, L>(
 	override val set: T.(V) -> Unit,
 	val isInitialized: T.() -> Boolean,
 	override val type: KType,
-	attributes: IAttributeContainer<L>
+	attributes: IAttributeContainer<L>,
+	override val immutable: Boolean = false
 ) : IDelegatedProperty<T, V, L>
 {
 	override val attributeContainer = attributes;

@@ -18,6 +18,7 @@ import strixpyrr.specular.models.IAttributeContainer
 import strixpyrr.specular.models.IDelegatedProperty
 import uy.klutter.core.common.with
 import kotlin.reflect.KMutableProperty1
+import kotlin.reflect.KProperty1
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
@@ -31,18 +32,34 @@ open class DelegatedPropertyBuilder<T, V, L> : IPropertyBuilder<T, V, L>, Attrib
 	lateinit var setter: T.(V) -> Unit;
 	lateinit var isInitialized: T.() -> Boolean;
 	lateinit var valueType: KType;
+	var immutable: Boolean = false;
 	
 	@PublishedApi
 	internal val hasType by ::valueType::isInitialized;
 	
-	open fun setFromProperty(property: KMutableProperty1<T, V>): DelegatedPropertyBuilder<T, V, L>
+	private val hasInitialization by ::isInitialized::isInitialized
+	
+	open fun setFromProperty(property: KProperty1<T, V>) =
+		set(property)
+		{
+			throw UnsupportedOperationException(
+				"This property is immutable."
+			)
+		}.also { immutable = true }
+	
+	open fun setFromProperty(property: KMutableProperty1<T, V>) = set(property, property::set)
+	
+	private fun set(property: KProperty1<T, V>, set: T.(V) -> Unit): DelegatedPropertyBuilder<T, V, L>
 	{
 		name = property.name
 		
-		return setAccessors(property::get, property::set).apply {
-			if (!property.isLateinit && !::isInitialized.isInitialized)
-				setAsAlwaysInitialized()
-		}
+		getter = property::get
+		setter = set
+		
+		if (!property.isLateinit && !::isInitialized.isInitialized)
+			setAsAlwaysInitialized()
+		
+		return this
 	}
 	
 	open fun setAccessors(get: T.() -> V, set: T.(V) -> Unit)
@@ -75,6 +92,7 @@ open class DelegatedPropertyBuilder<T, V, L> : IPropertyBuilder<T, V, L>, Attrib
 			setter,
 			isInitialized,
 			valueType,
-			attributeContainer
+			attributeContainer,
+			immutable
 		);
 }

@@ -25,6 +25,7 @@ interface IProperty<T, V, L> : IAttributeProvider<L>
 	
 	val name: String;
 	val type: KType;
+	val immutable: Boolean get() = false;
 	
 	fun hasValue(target: T): Boolean;
 	fun getValue(target: T): V;

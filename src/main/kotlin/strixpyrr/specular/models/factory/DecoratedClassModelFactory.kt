@@ -61,8 +61,7 @@ open class DecoratedClassModelFactory : IClassModelFactory
 		val properties = target.memberProperties;
 		val mutable = properties.filterTo(ArrayList(properties.size))
 		{
-			it.visibility == KVisibility.PUBLIC &&
-			it is KMutableProperty1
+			it.visibility == KVisibility.PUBLIC
 		}
 		
 		for (property in mutable)
@@ -82,8 +81,9 @@ open class DecoratedClassModelFactory : IClassModelFactory
 						transformer.transform(annotations, propertyLabelType, this);
 					}
 					
-					@Suppress("UNCHECKED_CAST") // Todo: Will this fail?
-					setFromProperty(property as KMutableProperty1<T, Any?>);
+					if (property is KMutableProperty1)
+						setFromProperty(property)
+					else setFromProperty(property)
 					
 					// Initialization
 					
@@ -104,8 +104,20 @@ open class DecoratedClassModelFactory : IClassModelFactory
 					
 					if (initProperty != null)
 						setInitialization(initProperty::get);
-					else if (property.isLateinit && valueType.isMarkedNullable)
-						setInitialization { property.get(this) != null };
+					else if (property.isLateinit)
+						setInitialization()
+						{
+							try
+							{
+								property.get(this)
+								
+								true
+							}
+							catch (_: UninitializedPropertyAccessException)
+							{
+								false
+							}
+						}
 				}
 			}
 		}
