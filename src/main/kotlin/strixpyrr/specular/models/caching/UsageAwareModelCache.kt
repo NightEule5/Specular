@@ -80,7 +80,7 @@ open class UsageAwareModelCache<K : Any> protected constructor(
 		if (storage.size <= 1) return;
 		
 		// Skip if the map is already sorted.
-		if (storage.values.all { prev, curr ->
+		if (storage.values.all { prev: IUsageAwareNode, curr ->
 				curr.usageCount >= prev.usageCount
 			}) return;
 		
