@@ -129,6 +129,7 @@ interface IFactoryParameter
 	val isOptional: Boolean;
 	
 	val parameter: KParameter;
+	val linkedProperty: IProperty<*, *, *>?
 }
 
 /**
@@ -137,12 +138,19 @@ interface IFactoryParameter
 @Suppress("LeakingThis")
 open class FactoryParameter(
 	override val name: String,
-	override val parameter: KParameter
+	override val parameter: KParameter,
+	override val linkedProperty: IProperty<*, *, *>? = null
 ) : IFactoryParameter
 {
 	constructor(parameter: KParameter) : this(
 		parameter.name ?: throw IllegalArgumentException("The parameter must have a name."),
 		parameter
+	)
+	
+	constructor(parameter: KParameter, linkedProperty: IProperty<*, *, *>) : this(
+		parameter.name ?: throw IllegalArgumentException("The parameter must have a name."),
+		parameter,
+		linkedProperty
 	)
 	
 	override val index      by parameter::index

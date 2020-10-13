@@ -16,7 +16,6 @@ package strixpyrr.specular.models.factory
 import strixpyrr.specular.models.FactoryParameter
 import strixpyrr.specular.models.IFactoryParameter
 import strixpyrr.specular.models.IProperty
-import strixpyrr.specular.models.PropertyLinkedFactoryParameter
 import strixpyrr.specular.models.annotations.ExcludedFactory
 import strixpyrr.specular.models.annotations.Factory
 import strixpyrr.specular.models.annotations.Parameter
@@ -59,12 +58,6 @@ open class FactoryResolver
 		           parameter.name as String
 		
 		val property = properties.find { it.name == name }
-		
-		if (property != null)
-		{
-			return PropertyLinkedFactoryParameter(name, parameter, property)
-		}
-		
-		return FactoryParameter(name, parameter)
+		return FactoryParameter(name, parameter, property)
 	}
 }

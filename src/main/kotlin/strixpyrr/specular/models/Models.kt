@@ -113,4 +113,4 @@ fun <T> createFactoryVariant(
 inline fun KParameter.toFactoryParameter() = FactoryParameter(this);
 
 @Suppress("NOTHING_TO_INLINE")
-inline fun KParameter.toFactoryParameter(property: IProperty<*, *, *>) = PropertyLinkedFactoryParameter(this, property);
+inline fun KParameter.toFactoryParameter(property: IProperty<*, *, *>) = FactoryParameter(this, property);

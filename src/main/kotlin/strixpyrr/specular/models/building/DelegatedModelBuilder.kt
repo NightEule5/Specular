@@ -159,8 +159,8 @@ open class DelegatedModelBuilder<T : Any, K : Any, L, Lp> protected constructor(
 				{ f ->
 					f.parameters.any()
 					{ p ->
-						if (p is PropertyLinkedFactoryParameter)
-							p.property == it
+						if (p.linkedProperty != null)
+							p.linkedProperty == it
 						else p.name == it.name
 					}
 				}
