@@ -26,7 +26,7 @@ open class DelegatedModel<T, K, L, Lp>(
 	override val properties by propertyMap::values;
 	
 	@Suppress("LeakingThis")
-	override val canCreate = factoryVariants.isEmpty();
+	override val canCreate = factoryVariants.isNotEmpty();
 	
 	override fun hasProperty(key: K) = propertyMap.containsKey(key);
 	
