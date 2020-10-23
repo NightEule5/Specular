@@ -183,6 +183,7 @@ open class DecoratedClassModelFactory : IClassModelFactory
 		
 		if (keyType.isBaseOf<String>()) return name as K;
 		
+		// Todo: This index could be negative. Might want to throw if that's the case.
 		if (keyType.isBaseOf<Int>() && metadata != null)
 			return metadata.index as K;
 		

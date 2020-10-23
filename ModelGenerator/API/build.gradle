@@ -1,0 +1,28 @@
+plugins {
+    id "org.jetbrains.kotlin.jvm"
+}
+
+group "strixpyrr.specular.generation"
+version "0.1"
+
+repositories {
+	google()
+}
+
+dependencies {
+	implementation project(":")
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+	implementation "com.google.devtools.ksp:symbol-processing-api:1.4.10-dev-experimental-20201009"
+	implementation "uy.kohesive.klutter:klutter-core:3.0.+"
+	implementation "strixpyrr.abstrakt:Abstrakt:0.1"
+
+	implementation "com.squareup:kotlinpoet:1.0.0-RC2"
+}
+
+compileKotlin {
+	kotlinOptions {
+		jvmTarget = "1.8"
+		languageVersion = "1.4"
+	}
+}

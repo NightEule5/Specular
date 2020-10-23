@@ -6,12 +6,14 @@ plugins {
 
 group = "strixpyrr.specular"
 archivesBaseName = "Specular"
-version = "0.6.1"
+version = "0.7"
 
-repositories {
-	mavenCentral()
-	jcenter()
-	mavenLocal()
+allprojects {
+	repositories {
+		mavenCentral()
+		jcenter()
+		mavenLocal()
+	}
 }
 
 dependencies {
@@ -21,6 +23,7 @@ dependencies {
 	implementation "org.apache.commons:commons-collections4:4.4"
 	implementation "uy.kohesive.klutter:klutter-core:3.0.+"
 
+	implementation "strixpyrr.abstrakt:Abstrakt:0.1"
 	implementation "strixpyrr.abstrakt:Abstrakt.Collections:0.0.2"
 
 	// For static object model generation, which is an optional feature.

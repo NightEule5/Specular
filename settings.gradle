@@ -1,1 +1,3 @@
+include 'ModelGenerator'
+include 'ModelGenerator:API'
 

@@ -80,6 +80,7 @@ open class DelegatedModelBuilder<T : Any, K : Any, L, Lp> protected constructor(
 		parameterMap: (KParameter) -> IFactoryParameter
 	)
 	{
+		// Todo: We probably need a public visibility check here.
 		type.primaryConstructor withNotNull
 		{
 			if (inclusion(this))
