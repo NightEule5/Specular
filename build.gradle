@@ -16,6 +16,14 @@ allprojects {
 	}
 }
 
+subprojects {
+	apply plugin: "org.jetbrains.kotlin.jvm"
+
+	dependencies {
+		implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+	}
+}
+
 dependencies {
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 	implementation "org.jetbrains.kotlin:kotlin-reflect"
@@ -25,9 +33,6 @@ dependencies {
 
 	implementation "strixpyrr.abstrakt:Abstrakt:0.1"
 	implementation "strixpyrr.abstrakt:Abstrakt.Collections:0.0.2"
-
-	// For static object model generation, which is an optional feature.
-	// compileOnly "com.squareup:kotlinpoet:1.6.0"
 }
 
 dokkaHtml {

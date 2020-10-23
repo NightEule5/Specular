@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 plugins {
-    id "org.jetbrains.kotlin.jvm"
     id "org.jetbrains.kotlin.kapt"
 }
 
@@ -27,7 +26,6 @@ dependencies {
 	implementation project(":")
 	implementation project("API")
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 	implementation "com.google.devtools.ksp:symbol-processing-api:1.4.10-dev-experimental-20201009"
 
 	implementation "uy.kohesive.klutter:klutter-core:3.0.+"
@@ -43,5 +41,15 @@ compileKotlin {
 		jvmTarget = "1.8"
 		languageVersion = "1.4"
 		freeCompilerArgs += "-Xopt-in=kotlin.contracts.ExperimentalContracts"
+	}
+}
+
+publishing {
+	publications {
+		modelGenerator(MavenPublication) {
+			from components.kotlin
+
+			artifact kotlinSourcesJar
+		}
 	}
 }
