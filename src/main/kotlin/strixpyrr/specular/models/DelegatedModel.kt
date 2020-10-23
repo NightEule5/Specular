@@ -32,5 +32,8 @@ open class DelegatedModel<T, K, L, Lp>(
 	
 	@Suppress("UNCHECKED_CAST")
 	override fun <V> getProperty(key: K)
-		= propertyMap[key] as IDelegatedProperty<T, V, Lp>;
+		= (propertyMap[key] as? IDelegatedProperty<T, V, Lp>) ?:
+		  throw NoSuchElementException(
+			  "The key $key does not exist in the property map."
+		  );
 }
